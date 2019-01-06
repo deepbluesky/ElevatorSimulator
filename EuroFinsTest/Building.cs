@@ -11,7 +11,7 @@ namespace EuroFinsTest
         [Test]
         public void TestBuildingConstructor()
         {
-            Building building = new Building(2, 10);
+            var building = BuildingFactory.Create(2, 10);
 
             Assert.AreEqual(building.Floors.Count, 13);
         }

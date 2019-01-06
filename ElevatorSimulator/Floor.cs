@@ -8,5 +8,12 @@ namespace ElevatorSimulator
     {
         public string Name { get; set; }
         public int FloorNumber { get; set; }
+        public ElevatorConsole Console {get; set;}
+        public Floor Upper { get; set; }
+        public Floor Lower { get; set; }
+
+        public bool IsNoFloor => FloorNumber == Int32.MinValue;
+
+
     }
 }

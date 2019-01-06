@@ -4,7 +4,9 @@ using System.Text;
 
 namespace ElevatorSimulator
 {
-    class Elevator
+    public class FloorRequest
     {
+        int To { get; set; }
+        int From { get; set; }
     }
 }
