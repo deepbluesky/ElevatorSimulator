@@ -8,13 +8,15 @@ namespace ElevatorSimulator.Elevators
     {
         public override void GoDown()
         {
-            Elevator.GoDown();
+            if (Elevator.TargetFloor == BuildingFactory.NoFloor) return;
+            Elevator.GoDownImpl();
             Elevator.State = Elevator.GoingDownState;
         }
 
         public override void GoUp()
         {
-            Elevator.GoUp();
+            if (Elevator.TargetFloor == BuildingFactory.NoFloor) return;
+            Elevator.GoUpImpl();
             Elevator.State = Elevator.GoingUpState;
         }
 

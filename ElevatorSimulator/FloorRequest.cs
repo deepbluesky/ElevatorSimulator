@@ -6,7 +6,12 @@ namespace ElevatorSimulator
 {
     public class FloorRequest
     {
-        int To { get; set; }
-        int From { get; set; }
+        public int To { get; set; }
+        public int From { get; set; }
+
+        public bool IsGoingUp => From < To;
+        public bool IsGoingDown => From > To; 
+
+        public bool Completed { get; set; }
     }
 }

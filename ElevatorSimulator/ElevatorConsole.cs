@@ -6,14 +6,18 @@ namespace ElevatorSimulator
 {
     public class ElevatorFloorConsole : IElevatorFloorConsole
     {
+        private bool _upClicked = false;
+        private bool _downClicked = false;
         public void GoDown()
         {
-            throw new NotImplementedException();
+            if (_downClicked) return;
+            _downClicked = true;
         }
 
         public void GoUp()
         {
-            throw new NotImplementedException();
+            if (_upClicked) return;
+            _upClicked = true;
         }
     }
 

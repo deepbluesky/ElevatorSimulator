@@ -15,7 +15,8 @@ namespace ElevatorSimulator
                     .Select(basement => new Floor
                     {
                         Name = $"B{basements - basement}",
-                        FloorNumber = -(basements - basement)
+                        FloorNumber = -(basements - basement),
+                        Console = new ElevatorFloorConsole()
                     }).ToList();
 
             Floor groundFloor = new Floor { Name = "Ground Floor", FloorNumber = 0 };
@@ -30,13 +31,12 @@ namespace ElevatorSimulator
                         })
             );
 
-            //null object pattern
-            Floor noFloor = new Floor { FloorNumber = Int32.MinValue };
-
+            int id = 0;
             building.Floors.ForEach(floor =>
             {
-                floor.Lower = building.Floors.Find(x => x.FloorNumber == floor.FloorNumber - 1) ?? noFloor;
-                floor.Upper = building.Floors.Find(x => x.FloorNumber == floor.FloorNumber + 1) ?? noFloor;
+                floor.Id = id++;
+                floor.Lower = building.Floors.Find(x => x.FloorNumber == floor.FloorNumber - 1) ?? BuildingFactory.NoFloor;
+                floor.Upper = building.Floors.Find(x => x.FloorNumber == floor.FloorNumber + 1) ?? BuildingFactory.NoFloor;
             });
 
             if (basements + floors > 0 && elevators > 0)
@@ -46,7 +46,12 @@ namespace ElevatorSimulator
                 building.Elevators.ForEach(elevator => elevator.CurrentFloor = groundFloor);
             }
 
+            building.SetupElevatorController();
+
             return building;
         }
+
+        private static Floor _NoFloor = new Floor { FloorNumber = Int32.MinValue };
+        public static Floor NoFloor => _NoFloor;
     }
 }

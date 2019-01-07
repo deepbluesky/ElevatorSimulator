@@ -11,6 +11,8 @@ namespace ElevatorSimulator
 
         private List<Elevator> _elevators;
 
+        private ElevatorController _controller;
+
         public Building(int basements, int floors, int elevators = 0)
         {
             _floors = new List<Floor>();
@@ -19,5 +21,10 @@ namespace ElevatorSimulator
 
         public List<Elevator> Elevators { get => _elevators; set => _elevators = value; }
         public List<Floor> Floors { get => _floors; set => _floors = value; }
+
+        public void SetupElevatorController()
+        {
+            _controller = new ElevatorController(this);
+        }
     }
 }
