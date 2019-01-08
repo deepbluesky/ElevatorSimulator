@@ -8,10 +8,13 @@ namespace ElevatorSimulator
     {
         public int To { get; set; }
         public int From { get; set; }
+        public bool GoingUp { get; set; }
+        public bool GoingDown { get; set; }
 
-        public bool IsGoingUp => From < To;
-        public bool IsGoingDown => From > To; 
+        public bool IsGoingUp => From < To  || GoingUp;
+        public bool IsGoingDown => From > To || GoingDown; 
 
         public bool Completed { get; set; }
     }
+
 }

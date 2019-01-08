@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace ElevatorSimulator
 {
-    public class ElevatorController : IObserver<IElevator>
+    public class ElevatorController : IObserver<IElevator>, IElevatorController
     {
         #region Observer
         public void OnCompleted()
@@ -41,7 +41,7 @@ namespace ElevatorSimulator
 
         }
 
-        public virtual void Subscribe(Elevator provider)
+        public virtual void Subscribe(IObservable<IElevator> provider)
         {
             provider.Subscribe(this);
         }
@@ -51,37 +51,44 @@ namespace ElevatorSimulator
         public ElevatorController(Building building)
         {
             _building = building;
-            _building.Elevators?.ForEach(elevator => Subscribe(elevator));
+            _building.Elevators?.ForEach(elevator => Subscribe(elevator as IObservable<IElevator>));
             Thread thread = new Thread(Process);
+            thread.Start();
         }
 
         private void Process(object obj)
         {
             while (_isRunning)
             {
-                if (_requestQueue.Count == 0)
+                try
                 {
-                    Thread.Sleep(100);
-                    continue;
-                }
+                    if (_requestQueue.Count == 0)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
 
-                //if the request is Completed, purge them
-                while (_requestQueue.Count > 0 && _requestQueue.Peek().Completed)
+                    //if the request is Completed, purge them
+                    while (_requestQueue.Count > 0 && _requestQueue.Peek().Completed)
+                    {
+                        _requestQueue.Dequeue();
+                    }
+
+                    HandleRequest(_requestQueue.Dequeue());
+                }catch(Exception ex)
                 {
-                    _requestQueue.Dequeue();
+                    Console.Error.WriteLine($"Error occured. Message = {ex.Message} StackTrace = {ex.StackTrace} ");
                 }
-
-                HandleRequest(_requestQueue.Dequeue());
             }
         }
 
         private void HandleRequest(FloorRequest floorRequest)
         {
-            Elevator elevator = GetElevator(floorRequest);
+            IElevator elevator = GetElevator(floorRequest);
 
             if (elevator != null)
             {
-                elevator.SetTarget(floorRequest);
+                elevator.RequestElevator(floorRequest);
             }
             else
             {
@@ -90,7 +97,7 @@ namespace ElevatorSimulator
             }
         }
 
-        private Elevator GetElevator(FloorRequest floorRequest)
+        private IElevator GetElevator(FloorRequest floorRequest)
         {
             //are there any idle elevators on this floor
             var idleElevator = _building.Elevators.Find(
@@ -127,12 +134,15 @@ namespace ElevatorSimulator
 
         private Queue<FloorRequest> _requestQueue = new Queue<FloorRequest>();
 
-        public void RequestElevator(int from, int to)
+        public void RequestElevator(int from, int to, bool? up = false, bool? down = false)
         {
             FloorRequest request = new FloorRequest { From = from, To = to };
+            if (up ?? false)
+                request.GoingUp = true;
+            if (down ?? false)
+                request.GoingDown = true;
+
             RequestElevator(request);
-
-
         }
 
         public void RequestElevator(FloorRequest request)

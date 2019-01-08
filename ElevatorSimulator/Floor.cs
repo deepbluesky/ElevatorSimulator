@@ -14,7 +14,5 @@ namespace ElevatorSimulator
 
         public bool IsNoFloor => FloorNumber == Int32.MinValue;
         public int Id;
-
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElevatorSimulator.Elevators;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,22 +13,27 @@ namespace ElevatorSimulator
         {
             if (_downClicked) return;
             _downClicked = true;
+            Controller.RequestElevator(Floor.FloorNumber, Floor.FloorNumber);
         }
 
         public void GoUp()
         {
             if (_upClicked) return;
             _upClicked = true;
+            Controller.RequestElevator(Floor.FloorNumber, Floor.FloorNumber);
         }
+
+        public IElevatorController Controller { get; set; }
+        public Floor Floor { get; set; }
     }
 
     public class ElevatorConsole : IElevatorConsole
     {
-        public List<FloorRequest> FloorButtons { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public List<ICommand<int>> FloorButtons { get; set; }
 
         public void CloseDoor()
         {
-            throw new NotImplementedException();
+            Elevator.CloseDoor();
         }
 
         public void GoDown()
@@ -42,7 +48,17 @@ namespace ElevatorSimulator
 
         public void OpenDoor()
         {
-            throw new NotImplementedException();
+            Elevator.OpenDoor();
+        }
+
+        public IElevatorController Controller { get; set; }
+        public Floor Floor { get; set; }
+
+        public IElevator Elevator { get; set; }
+
+        public void RequestFloor(int floorNumber)
+        {
+            FloorButtons.Find(x => x.Data == floorNumber)?.Execute();
         }
     }
 }

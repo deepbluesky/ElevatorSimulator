@@ -6,11 +6,12 @@ using ElevatorSimulator.Elevators;
 
 namespace ElevatorSimulator
 {
-    public class Elevator : IObservable<Elevator>, IElevator
+    public class Elevator : IObservable<IElevator>, IElevator
     {
 
         public Floor CurrentFloor { get; set; }
-        public Floor TargetFloor { get; set; }
+        private Floor TargetFloor { get; set; }
+        public String Name { get; set; }
         public IElevatorConsole Console { get; set; }
 
         internal IElevatorState State { get; set; }
@@ -22,19 +23,18 @@ namespace ElevatorSimulator
         internal IElevatorState DoorClosedState = new ElevatorCloseDoorState();
         internal IElevatorState StopState = new ElevatorStopState();
 
+        public List<StopRequest> StopRequests { get; set; }
+        
+
         private object _lock = new object();
+
         public Elevator()
         {
-            State = DoorClosedState;
-            Reset();
-        }
-
-
-        public void Reset(bool stop = true)
-        {
+            State = DoorClosedState; 
+            StopRequests = new List<StopRequest>();
             TargetFloor = BuildingFactory.NoFloor;
-            if (stop) Stop();
         }
+
         public void OpenDoor()
         {
             State.OpenDoor();
@@ -59,9 +59,28 @@ namespace ElevatorSimulator
         }
 
 
-        public void SetTarget(FloorRequest req)
+        public void RequestElevator(FloorRequest req)
         {
-            if (IsIdle()) TargetFloor = GetFloor(req, CurrentFloor);
+            var stopRequest = StopRequests.Find(sr => sr.FloorNumber == req.To);
+            if (IsGoingDown()) stopRequest.DownRequest = true;
+            if (IsGoingUp()) stopRequest.UpRequest = true;
+
+
+            if (TargetFloor.FloorNumber == CurrentFloor.FloorNumber)
+            {
+                Land();
+                return;
+            }
+
+            if (IsIdle())
+            {
+                TargetFloor = GetFloor(req, CurrentFloor);
+                if (req.IsGoingDown) GoDown();
+                if (req.IsGoingUp) GoUp();
+                return;
+            }
+
+
             //elevator is going down and the current target is greater than 'To', 
             //new target is 'To'
             if (IsGoingDown() && TargetFloor.FloorNumber > req.To)
@@ -71,6 +90,11 @@ namespace ElevatorSimulator
             //new target is 'To'
             if (IsGoingUp() && TargetFloor.FloorNumber < req.To)
                 TargetFloor = GetFloor(req, CurrentFloor);
+
+            
+
+            
+            
         }
 
         private Floor GetFloor(FloorRequest req, Floor floor)
@@ -85,31 +109,37 @@ namespace ElevatorSimulator
 
         public bool IsGoingUp() => GoingUpState == State;
         public bool IsGoingDown() => GoingDownState == State;
-        public bool IsIdle() => TargetFloor == BuildingFactory.NoFloor;
+        public bool IsIdle() => TargetFloor == BuildingFactory.NoFloor || TargetFloor.FloorNumber == CurrentFloor.FloorNumber;
 
-        private void Arrived()
+        private void Land()
         {
             Stop();
             OpenDoor();
-            Reset(false);
         }
 
         public void GoDownImpl()
         {
             if (TargetFloor == BuildingFactory.NoFloor) return;
             if (!CurrentFloor.Lower.IsNoFloor)
-            {
-                if (TargetFloor == CurrentFloor)
-                {
-                    Arrived();
-                    return;
-                }
-
+            { 
                 lock (_lock)
                     CurrentFloor = CurrentFloor.Lower;
 
                 NotifyObservers();
 
+                StopRequest stopRequest = StopRequests.Find(sr => sr.FloorNumber == CurrentFloor.FloorNumber);
+                if (stopRequest.DownRequest)
+                {
+                    stopRequest.DownRequest = false;
+                    Land();
+                }
+
+                if (TargetFloor == CurrentFloor)
+                {
+                    Land();
+                    return;
+                }
+                
                 Thread.Sleep(100);
                 GoDown();
             }
@@ -121,24 +151,32 @@ namespace ElevatorSimulator
 
             if (!CurrentFloor.Upper.IsNoFloor)
             {
-                if (TargetFloor == CurrentFloor)
-                {
-                    Arrived();
-                    return;
-                }
-
                 lock (_lock)
                     CurrentFloor = CurrentFloor.Upper;
 
                 NotifyObservers();
+                StopRequest stopRequest = StopRequests.Find(sr => sr.FloorNumber == CurrentFloor.FloorNumber);
+                if (stopRequest.UpRequest)
+                {
+                    stopRequest.UpRequest = false;
+                    Land();
+                } 
+
+                if (TargetFloor == CurrentFloor)
+                {
+                    Land();
+                    return;
+                }
+
+                
 
                 Thread.Sleep(100);
                 GoUp();
             }
         }
 
-        private List<IObserver<Elevator>> _observers = new List<IObserver<Elevator>>();
-        public IDisposable Subscribe(IObserver<Elevator> observer)
+        private List<IObserver<IElevator>> _observers = new List<IObserver<IElevator>>();
+        public IDisposable Subscribe(IObserver<IElevator> observer)
         {
             if (!_observers.Contains(observer))
             {
@@ -147,7 +185,7 @@ namespace ElevatorSimulator
 
             observer.OnNext(this);
 
-            return new Unsubscriber<Elevator>(_observers, observer);
+            return new Unsubscriber<IElevator>(_observers, observer);
         }
 
         public void NotifyObservers()

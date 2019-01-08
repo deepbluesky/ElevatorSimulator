@@ -1,13 +1,17 @@
-﻿using System;
+﻿using ElevatorSimulator.Elevators;
+using System;
 using System.Collections.Generic;
 using System.Text;
+
 
 namespace ElevatorSimulator
 {
     public interface IElevatorFloorConsole
     {
+        IElevatorController Controller { get; set; }
         void GoUp();
         void GoDown();
+        Floor Floor { get; set; }
 
     }
 
@@ -16,6 +20,7 @@ namespace ElevatorSimulator
 
         void OpenDoor();
         void CloseDoor();
-        List<FloorRequest> FloorButtons { get; set; }
+        List<ICommand<int>> FloorButtons { get; set; }
+        IElevator Elevator { get; set; }
     }
 }

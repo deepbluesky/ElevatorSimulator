@@ -2,29 +2,44 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using ElevatorSimulator.Elevators;
 
 namespace ElevatorSimulator
 {
-    public class Building  
+    public class Building
     {
         private List<Floor> _floors;
 
-        private List<Elevator> _elevators;
+        private List<IElevator> _elevators;
 
-        private ElevatorController _controller;
+        public IElevatorController Controller { get; set; }
 
         public Building(int basements, int floors, int elevators = 0)
         {
             _floors = new List<Floor>();
-            _elevators = new List<Elevator>();
-        } 
+            _elevators = new List<IElevator>();
+        }
 
-        public List<Elevator> Elevators { get => _elevators; set => _elevators = value; }
-        public List<Floor> Floors { get => _floors; set => _floors = value; }
+        public List<IElevator> Elevators { get => _elevators; set { _elevators = value; SetupElevatorConsoles(); } }
+        public List<Floor> Floors { get => _floors; set { _floors = value; SetupFloorConsoles(); } }
 
         public void SetupElevatorController()
         {
-            _controller = new ElevatorController(this);
+            Controller = BuildingFactory.CreateController(this);
+
         }
+
+        private void SetupFloorConsoles()
+        {
+            _floors.ForEach(f => { f.Console.Controller = Controller;  f.Console.Floor = f; });
+        }
+
+
+        private void SetupElevatorConsoles()
+        {
+            _elevators.ForEach(e => { e.Console = BuildingFactory.CreateElevatorConsole(this); });
+        }
+
+        
     }
 }
