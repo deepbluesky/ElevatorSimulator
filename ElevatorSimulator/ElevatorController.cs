@@ -39,6 +39,10 @@ namespace ElevatorSimulator
                 matchingRequests.ForEach(x => x.Completed = true);
             }
 
+            Console.WriteLine(
+                String.Join('|',
+                _building.Elevators.Select(e => $"{e.Name}@{e.CurrentFloor.FloorNumber}")));
+
         }
 
         public virtual void Subscribe(IObservable<IElevator> provider)
