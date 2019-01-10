@@ -25,5 +25,11 @@ namespace ElevatorSimulator.Elevators
             Elevator.OpenDoorImpl();
             Elevator.State = Elevator.DoorOpenState;
         }
+
+        public override void CloseDoor()
+        {
+            Elevator.CloseDoorImpl();
+            Elevator.State = Elevator.DoorClosedState;
+        }
     }
 }

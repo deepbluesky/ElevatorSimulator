@@ -19,5 +19,7 @@ namespace ElevatorSimulator.Elevators
         void RequestElevator(FloorRequest req);
         IElevatorConsole Console { get; set; }
         List<StopRequest> StopRequests { get; }
+        bool IsDoorClosed { get; }
+        bool IsDoorOpened { get; }
     }
 }

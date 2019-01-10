@@ -22,16 +22,16 @@ namespace ElevatorSimulator
 
         public void OnNext(IElevator elevator)
         {
-            Console.WriteLine($"Elevator is at floor : {elevator.CurrentFloor.Name}");
+            //Console.WriteLine($"Elevator is at floor : {elevator.CurrentFloor.Name}");
             //if there are any requests from this floor on this direction
-            var matchingRequests = 
+            var matchingRequests =
                 _requestQueue.ToList()
                     .FindAll(req => !req.Completed)
                     .FindAll(req =>
                         elevator.IsGoingUp() && req.IsGoingUp || elevator.IsGoingDown() && req.IsGoingDown)
                     .FindAll(req => req.From == elevator.CurrentFloor.FloorNumber);
 
-            if(matchingRequests.Count > 0)
+            if (matchingRequests.Count > 0)
             {
                 elevator.Stop();
                 elevator.OpenDoor();
@@ -39,10 +39,15 @@ namespace ElevatorSimulator
                 matchingRequests.ForEach(x => x.Completed = true);
             }
 
-            Console.WriteLine(
-                String.Join('|',
-                _building.Elevators.Select(e => $"{e.Name}@{e.CurrentFloor.FloorNumber}")));
+            Display();
 
+        }
+
+        public void Display()
+        {
+            Console.WriteLine(
+                            String.Join('|',
+                            _building.Elevators.Select(e => $"{e.Name}@{e.CurrentFloor.FloorNumber}-{(e.IsDoorOpened ? "<>" : "#")}")));
         }
 
         public virtual void Subscribe(IObservable<IElevator> provider)

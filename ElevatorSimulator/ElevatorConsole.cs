@@ -11,16 +11,16 @@ namespace ElevatorSimulator
         private bool _downClicked = false;
         public void GoDown()
         {
-            if (_downClicked) return;
+            //if (_downClicked) return;
             _downClicked = true;
-            Controller.RequestElevator(Floor.FloorNumber, Floor.FloorNumber);
+            Controller.RequestElevator(Floor.FloorNumber, Floor.FloorNumber, false, true);
         }
 
         public void GoUp()
         {
-            if (_upClicked) return;
+            //if (_upClicked) return;
             _upClicked = true;
-            Controller.RequestElevator(Floor.FloorNumber, Floor.FloorNumber);
+            Controller.RequestElevator(Floor.FloorNumber, Floor.FloorNumber, true);
         }
 
         public IElevatorController Controller { get; set; }

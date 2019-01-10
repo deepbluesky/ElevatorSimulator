@@ -63,8 +63,8 @@ namespace ElevatorSimulator
         public void RequestElevator(FloorRequest req)
         {
             var stopRequest = StopRequests.Find(sr => sr.FloorNumber == req.To);
-            if (IsGoingDown()) stopRequest.DownRequest = true;
-            if (IsGoingUp()) stopRequest.UpRequest = true;
+            if (req.GoingDown) stopRequest.DownRequest = true;
+            if (req.GoingUp) stopRequest.UpRequest = true;
 
 
             if (TargetFloor.FloorNumber == CurrentFloor.FloorNumber)
@@ -111,6 +111,8 @@ namespace ElevatorSimulator
         public bool IsGoingUp() => GoingUpState == State;
         public bool IsGoingDown() => GoingDownState == State;
         public bool IsIdle() => TargetFloor == BuildingFactory.NoFloor || TargetFloor.FloorNumber == CurrentFloor.FloorNumber || State == DoorClosedState;
+        public bool IsDoorClosed { get { return !IsDoorOpened; } }
+        public bool IsDoorOpened { get { return State == DoorOpenState; } }
 
         private void Land()
         {
