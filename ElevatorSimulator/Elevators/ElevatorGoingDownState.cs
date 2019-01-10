@@ -8,7 +8,7 @@ namespace ElevatorSimulator.Elevators
     {
         public override void Stop()
         {
-            Elevator.Stop();
+            Elevator.StopImpl();
             Elevator.State = Elevator.StopState;
         }
     }

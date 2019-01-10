@@ -37,7 +37,7 @@ namespace ElevatorSimulator
 
         private void SetupElevatorConsoles()
         {
-            _elevators.ForEach(e => { e.Console = BuildingFactory.CreateElevatorConsole(this); });
+            _elevators.ForEach(e => { e.Console = BuildingFactory.CreateElevatorConsole(this, e); });
         }
 
         

@@ -9,7 +9,7 @@ namespace ElevatorSimulator.Elevators
         
         public override void CloseDoor()
         {
-            Elevator.CloseDoor();
+            Elevator.CloseDoorImpl();
             Elevator.State = Elevator.DoorClosedState;
         } 
          

@@ -22,7 +22,7 @@ namespace ElevatorSimulator.Elevators
 
         public override void OpenDoor()
         {
-            Elevator.OpenDoor();
+            Elevator.OpenDoorImpl();
             Elevator.State = Elevator.DoorOpenState;
         }
     }

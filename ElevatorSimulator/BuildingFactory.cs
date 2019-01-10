@@ -65,22 +65,22 @@ namespace ElevatorSimulator
             return new ElevatorController(building);
         }
 
-        public static IElevatorConsole CreateElevatorConsole(Building building)
+        public static IElevatorConsole CreateElevatorConsole(Building building, IElevator elevator)
         {
+
+
             IElevatorConsole console = new ElevatorConsole();
             console.Controller = building.Controller;
-            building.Elevators.ForEach(elevator =>
-            {
-                elevator.Console = console;
-                elevator.Console.FloorButtons = building.Floors
-                    .Select(floor => new GoToCommand(elevator, floor.FloorNumber))
-                    .ToList<ICommand<int>>();
+            elevator.Console = console;
+            elevator.Console.FloorButtons = building.Floors
+                .Select(floor => new GoToCommand(elevator, floor.FloorNumber))
+                .ToList<ICommand<int>>();
 
-                elevator.StopRequests.AddRange( 
-                    building.Floors.Select(floor => new StopRequest { FloorNumber = floor.FloorNumber})
-                );
-            });
-            
+            elevator.StopRequests.AddRange(
+                building.Floors.Select(floor => new StopRequest { FloorNumber = floor.FloorNumber })
+            );
+
+
             return console;
         }
     }

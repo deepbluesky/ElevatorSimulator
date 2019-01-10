@@ -33,6 +33,7 @@ namespace ElevatorSimulator
             State = DoorClosedState; 
             StopRequests = new List<StopRequest>();
             TargetFloor = BuildingFactory.NoFloor;
+            GoingUpState.Elevator = GoingDownState.Elevator = DoorOpenState.Elevator = DoorClosedState.Elevator = StopState.Elevator = this;
         }
 
         public void OpenDoor()
@@ -109,7 +110,7 @@ namespace ElevatorSimulator
 
         public bool IsGoingUp() => GoingUpState == State;
         public bool IsGoingDown() => GoingDownState == State;
-        public bool IsIdle() => TargetFloor == BuildingFactory.NoFloor || TargetFloor.FloorNumber == CurrentFloor.FloorNumber;
+        public bool IsIdle() => TargetFloor == BuildingFactory.NoFloor || TargetFloor.FloorNumber == CurrentFloor.FloorNumber || State == DoorClosedState;
 
         private void Land()
         {
@@ -174,6 +175,19 @@ namespace ElevatorSimulator
                 GoUp();
             }
         }
+
+        public void OpenDoorImpl()
+        {            
+        }
+
+        public void CloseDoorImpl()
+        {
+        }
+
+        public void StopImpl()
+        {
+        }
+
 
         private List<IObserver<IElevator>> _observers = new List<IObserver<IElevator>>();
         public IDisposable Subscribe(IObserver<IElevator> observer)
